@@ -1,7 +1,8 @@
 import re
 import concurrent.futures
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
+import core.config
 from core.dom import dom
 from core.log import setup_logger
 from core.utils import getUrl, getParams
@@ -12,7 +13,91 @@ from plugins.retireJs import retireJs
 logger = setup_logger(__name__)
 
 
+# ─── Browser-mode crawler (Phase 4) ─────────────────────────────────────────
+def photon_browser(seedUrl, headers, level, delay, timeout, skipDOM):
+    """
+    DrissionPage-based crawler for JS-rendered pages and Cloudflare bypass.
+    Handles SPA navigation, dynamic content loading, and modern web apps.
+    """
+    from core.requester import _get_browser_session
+
+    tab = _get_browser_session()
+    forms = []
+    storage = set()
+    processed = set()
+    schema = urlparse(seedUrl).scheme
+    host = urlparse(seedUrl).netloc
+    main_url = schema + '://' + host
+
+    def extract_links(html):
+        """Extract all links from rendered HTML."""
+        hrefs = re.findall(r'href=["\'](.*?)["\']', html)
+        srcs = re.findall(r'src=["\'](.*?)["\']', html)
+        actions = re.findall(r'action=["\'](.*?)["\']', html)
+        return set(hrefs + srcs + actions)
+
+    def normalize(base, link):
+        """Resolve relative URLs to absolute."""
+        if link.startswith('javascript:') or link.startswith('#') or not link:
+            return None
+        return urljoin(base, link)
+
+    def is_internal(url):
+        """Check if URL belongs to target host."""
+        if not url:
+            return False
+        try:
+            parsed = urlparse(url)
+            if parsed.netloc and parsed.netloc != host:
+                return False
+            return True
+        except Exception:
+            return False
+
+    def recrawl(page_url, depth=0):
+        if page_url in processed or depth > level:
+            return
+        processed.add(page_url)
+        logger.run('Crawling %s\r' % page_url)
+        try:
+            tab.get(page_url, timeout=timeout)
+            tab.wait.doc_loaded()
+            html = tab.html
+
+            # Extract forms
+            form_actions = re.findall(r'<form[^>]*action=["\'](.*?)["\']', html, re.I)
+            for action in form_actions:
+                full = normalize(page_url, action)
+                if full:
+                    forms.append(full)
+
+            # DOM XSS check
+            if not skipDOM:
+                highlighted = dom(html)
+                if highlighted:
+                    logger.good('DOM XSS vectors found at %s' % page_url)
+
+            # Discover new URLs
+            links = extract_links(html)
+            for link in links:
+                full = normalize(page_url, link)
+                if full and is_internal(full) and full not in processed:
+                    storage.add(full)
+                    if depth < level:
+                        recrawl(full, depth + 1)
+
+        except Exception as e:
+            logger.debug('Crawl error at %s: %s' % (page_url, e))
+
+    storage.add(seedUrl)
+    recrawl(seedUrl)
+    return [forms, list(storage)]
+
+
 def photon(seedUrl, headers, level, threadCount, delay, timeout, skipDOM):
+    # ─── Browser-mode (JS-rendered / Cloudflare) ───
+    if core.config.use_browser:
+        return photon_browser(seedUrl, headers, level, delay, timeout, skipDOM)
     forms = []  # web forms
     processed = set()  # urls that have been crawled
     storage = set()  # urls that belong to the target i.e. in-scope

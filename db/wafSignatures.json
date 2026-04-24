@@ -76,8 +76,8 @@
 	},
 	"CloudFlare Web Application Firewall (CloudFlare)" : {
 		"code" : "",
-		"page" : "Attention Required! \\| Cloudflare|CloudFlare Ray ID:|var CloudFlare=|CLOUDFLARE_ERROR_500S_BOX|Cf-Id:|Checking your browser before proceeding|cargo\\.cdn\\.npm\\.install|CF-Connecting-IP",
-		"headers" : "cloudflare|__cfduid=|cf-ray|CF-Visitor|CF-IPCountry"
+		"page" : "Attention Required! \\| Cloudflare|CloudFlare Ray ID:|var CloudFlare=|CLOUDFLARE_ERROR_500S_BOX|Cf-Id:|Checking your browser before proceeding|cargo\\.cdn\\.npm\\.install|CF-Connecting-IP|cf-challenge",
+		"headers" : "cloudflare|__cfduid=|cf-ray|CF-Visitor|CF-IPCountry|CF-Connecting-IP|CF-RequestId"
 	},
 	"CloudFront (Amazon)" : {
 		"code" : "",
@@ -328,5 +328,50 @@
 		"code" : "",
 		"page" : "<img class=.yunsuologo.",
 		"headers" : "yunsuo_session"
+	},
+	"AWS Web Application Firewall (Amazon)" : {
+		"code" : "403",
+		"page" : "",
+		"headers" : "X-Amzn-RequestId|X-Amz-InvocationType"
+	},
+	"Azure Web Application Firewall (Microsoft)" : {
+		"code" : "403",
+		"page" : "Azure|WAF|WebApplicationFirewall|BlockedBySecurityConfig",
+		"headers" : "X-MS-Ref|ASL=-"
+	},
+	"Fastly Security (Fastly)" : {
+		"code" : "",
+		"page" : "403 Forbidden|Access Denied",
+		"headers" : "Fastly|Fastly-debug|surrogate-key"
+	},
+	"PerimeterX Human (PerimeterX)" : {
+		"code" : "",
+		"page" : "px\\.client|perimeterx|PX.*?403",
+		"headers" : "X-PX|X-PerimeterX"
+	},
+	"DataDome (DataDome)" : {
+		"code" : "",
+		"page" : "datadome|ddpdd|challenge\\.js",
+		"headers" : "ddp|fingerprint"
+	},
+	"Cloudflare Bot Management (Cloudflare)" : {
+		"code" : "",
+		"page" : "Checking your browser before proceeding|cf-challenge|Cf-Id",
+		"headers" : "CF-Visiting|CF-RequestId"
+	},
+	"ShadowCow/CIANS (F5 Networks)" : {
+		"code" : "",
+		"page" : "IR_PRESS|incIdent|captcha|F5",
+		"headers" : "X-F5-.*|TSID"
+	},
+	"Yandex SmartCaptcha (Yandex)" : {
+		"code" : "403",
+		"page" : "yandex.*bot|smartupload|YandexSmartCaptcha",
+		"headers" : ""
+	},
+	"Akamai Kona (Akamai)" : {
+		"code" : "403",
+		"page" : "Reference.*?AkamaiGhost|Akamai",
+		"headers" : "X-Akamai-.*|Akamai-Origin"
 	}
 }

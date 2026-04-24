@@ -7,8 +7,8 @@ if len(end) < 1:
 
 def dom(response):
     highlighted = []
-    sources = r'''\b(?:document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage)\b'''
-    sinks = r'''\b(?:eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location)\b'''
+    sources = r'''\b(?:document\.(URL|documentURI|URLUnencoded|baseURI|cookie|referrer|body|head|title|activeElement)|location\.(href|search|hash|pathname)|window\.name|history\.(pushState|replaceState)(local|session)Storage|localStorage|sessionStorage|indexedDB|cookie|BroadcastChannel\.message|MessageChannel\.data|navigator\.serviceWorker\.controller\.postMessage|frames|contentWindow|opener|parent|top)\b'''
+    sinks = r'''\b(?:eval|evaluate|execCommand|assign|navigate|getResponseHeaderopen|showModalDialog|Function|set(Timeout|Interval|Immediate)|execScript|crypto.generateCRMFRequest|ScriptElement\.(src|text|textContent|innerText)|.*?\.onEventName|document\.(write|writeln)|.*?\.innerHTML|Range\.createContextualFragment|(document|window)\.location|postMessage|BroadcastChannel|MessageChannel|navigator\.serviceWorker|importScripts|WebSocket|atob|btoa|innerHTML|outerHTML|insertAdjacentHTML|write|writeln|replaceChildren|replaceWith|prepend|append|before|after)\b'''
     scripts = re.findall(r'(?i)(?s)<script[^>]*>(.*?)</script>', response)
     sinkFound, sourceFound = False, False
     for script in scripts:
