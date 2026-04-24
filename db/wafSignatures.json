@@ -76,8 +76,8 @@
 	},
 	"CloudFlare Web Application Firewall (CloudFlare)" : {
 		"code" : "",
-		"page" : "Attention Required! \\| Cloudflare|CloudFlare Ray ID:|var CloudFlare=|CLOUDFLARE_ERROR_500S_BOX",
-		"headers" : "cloudflare|__cfduid=|cf-ray"
+		"page" : "Attention Required! \\| Cloudflare|CloudFlare Ray ID:|var CloudFlare=|CLOUDFLARE_ERROR_500S_BOX|Cf-Id:|Checking your browser before proceeding|cargo\\.cdn\\.npm\\.install|CF-Connecting-IP",
+		"headers" : "cloudflare|__cfduid=|cf-ray|CF-Visitor|CF-IPCountry"
 	},
 	"CloudFront (Amazon)" : {
 		"code" : "",

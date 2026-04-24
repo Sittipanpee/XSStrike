@@ -80,6 +80,12 @@ parser.add_argument('--file-log-level', help='File logging level', dest='file_lo
                     choices=core.log.log_config.keys(), default=None)
 parser.add_argument('--log-file', help='Name of the file to log', dest='log_file',
                     default=core.log.log_file)
+parser.add_argument('--browser', help='Use DrissionPage browser engine to bypass WAFs '
+                    '(Cloudflare, Fugare, PerimeterX, etc.)',
+                    dest='browser', action='store_true')
+parser.add_argument('--skip-waf', help='Skip WAF detection and attempt scan anyway '
+                    '(use with --browser for Cloudflare bypass)',
+                    dest='skip_waf', action='store_true')
 args = parser.parse_args()
 
 # Pull all parameter values of dict from argparse namespace into local variables of name == key
@@ -103,6 +109,8 @@ delay = args.delay
 skip = args.skip
 skipDOM = args.skipDOM
 blindXSS = args.blindXSS
+browser = args.browser
+skip_waf = args.skip_waf
 core.log.console_log_level = args.console_log_level
 core.log.file_log_level = args.file_log_level
 core.log.log_file = args.log_file
@@ -110,6 +118,7 @@ core.log.log_file = args.log_file
 logger = core.log.setup_logger()
 
 core.config.globalVariables = vars(args)
+core.config.use_browser = browser
 
 # Import everything else required from core lib
 from core.config import blindPayload
@@ -171,7 +180,7 @@ elif not recursive and not args_seeds:
     if args_file:
         bruteforcer(target, paramData, payloadList, encoding, headers, delay, timeout)
     else:
-        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip)
+        scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, skip_waf)
 else:
     if target:
         seedList.append(target)

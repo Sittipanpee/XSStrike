@@ -18,7 +18,10 @@ from core.log import setup_logger
 logger = setup_logger(__name__)
 
 
-def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
+def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip, skip_waf=False):
+    """
+    skip_waf: if True, skip WAF detection and scan anyway (use with --browser for Cloudflare bypass)
+    """
     GET, POST = (False, True) if paramData else (True, False)
     # If the user hasn't supplied the root url with http(s), we will handle it
     if not target.startswith('http'):
@@ -49,12 +52,16 @@ def scan(target, paramData, encoding, headers, delay, timeout, skipDOM, skip):
     if not params:
         logger.error('No parameters to test.')
         quit()
-    WAF = wafDetector(
-        url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
-    if WAF:
-        logger.error('WAF detected: %s%s%s' % (green, WAF, end))
+    WAF = None
+    if not skip_waf:
+        WAF = wafDetector(
+            url, {list(params.keys())[0]: xsschecker}, headers, GET, delay, timeout)
+        if WAF:
+            logger.error('WAF detected: %s%s%s' % (green, WAF, end))
+        else:
+            logger.good('WAF Status: %sOffline%s' % (green, end))
     else:
-        logger.good('WAF Status: %sOffline%s' % (green, end))
+        logger.warning('WAF detection skipped (--skip-waf). Proceeding with scan...')
 
     for paramName in params.keys():
         paramsCopy = copy.deepcopy(params)
